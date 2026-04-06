@@ -1,0 +1,50 @@
+# =============================================================
+# Powerlifting API — Python zavisnosti
+# =============================================================
+#
+# Kreiranje virtualnog okruženja (jednom):
+#   python -m venv .venv
+#
+# Aktivacija (svaki put kad otvoriš terminal):
+#   Windows (PowerShell):  .venv\Scripts\Activate.ps1
+#   Windows (cmd):         .venv\Scripts\activate.bat
+#   Linux / macOS:         source .venv/bin/activate
+#
+# Instalacija zavisnosti (unutar aktiviranog okruženja):
+#   pip install -r requirements.txt
+#
+# Deaktivacija (kad završiš):
+#   deactivate
+#
+# =============================================================
+
+# -- Web framework --
+# FastAPI s "standard" extras paketom koji uključuje uvicorn, httpx, itd.
+fastapi[standard]>=0.115,<1.0
+uvicorn[standard]>=0.34,<1.0
+
+# -- Validacija i konfiguracija --
+# Pydantic je srce FastAPI validacije (DTO / schema modeli).
+# pydantic-settings omogućava čitanje env varijabli u Settings klasu.
+pydantic>=2.10,<3.0
+pydantic-settings>=2.7,<3.0
+
+# -- Baza podataka --
+# SQLAlchemy 2.0 — ORM s podrškom za async.
+# asyncpg — async PostgreSQL driver (brži od psycopg2 za async).
+sqlalchemy>=2.0,<3.0
+asyncpg>=0.30,<1.0
+
+# -- Migracije (dolazi u predavanju 2) --
+alembic>=1.14,<2.0
+
+# -- Autentikacija (dolazi u predavanju 3) --
+# passlib — hashiranje lozinki (bcrypt algoritam).
+# python-jose — generiranje i validacija JWT tokena.
+passlib[bcrypt]>=1.7,<2.0
+python-jose[cryptography]>=3.3,<4.0
+
+# -- Testiranje --
+httpx>=0.28,<1.0
+pytest>=8.3,<9.0
+pytest-asyncio>=0.25,<1.0

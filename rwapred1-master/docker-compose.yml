@@ -1,0 +1,54 @@
+# =============================================================
+# Docker Compose — razvojno okruženje
+# =============================================================
+# Pokreće PostgreSQL bazu u Docker kontejneru tako da svi
+# studenti imaju identično okruženje, neovisno o OS-u.
+#
+# Pokretanje:   docker compose up -d db
+# Zaustavljanje: docker compose down
+# Reset baze:   docker compose down -v   (briše volume s podacima!)
+#
+# Backend i frontend pokrećemo LOKALNO (ne u Dockeru)
+# jer je brže za razvoj (hot reload, debugger, itd.).
+# =============================================================
+
+services:
+  db:
+    # Koristimo službeni PostgreSQL 16 image.
+    image: postgres:16
+
+    # "unless-stopped" znači: restartaj kontejner ako padne,
+    # osim ako ga ručno zaustavimo sa "docker compose down".
+    restart: unless-stopped
+
+    # Env varijable za inicijalizaciju baze.
+    # ${VAR:-default} sintaksa: koristi vrijednost iz .env datoteke,
+    # a ako ne postoji, koristi default vrijednost nakon ":-".
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pl_reg}
+      POSTGRES_USER: ${POSTGRES_USER:-pl_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pl_pass}
+
+    # Mapiramo port 5432 iz kontejnera na lokalni port.
+    # To znači da se na bazu spajamo kao da je lokalna: localhost:5432
+    ports:
+      - "${DB_PORT:-5432}:5432"
+
+    # Volume čuva podatke baze između restartova kontejnera.
+    # Bez volumea, svaki "docker compose down" bi obrisao sve podatke.
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+    # Healthcheck — Docker periodički provjerava je li baza spremna.
+    # pg_isready je Postgres alat koji vraća 0 ako baza prima konekcije.
+    # Koristi se i za depends_on u budućnosti (npr. ako dodamo API u Compose).
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pl_user}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+# Imenovani volume — Docker ga sam kreira i upravlja njime.
+# Vidljiv sa: docker volume ls
+volumes:
+  pgdata:
